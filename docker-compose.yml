@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   fpm:
     image: php:fpm
@@ -6,26 +6,20 @@ services:
       - ./app:/var/www/html
     ports:
       - "9000:9000"
-    links:
-      - mysql
   nginx:
     image: nginx:stable
+    depends_on:
+      - fpm
     volumes:
-      - ./conf/nginx:/etc/nginx/conf.d/default.conf 
+      - ./conf/nginx:/etc/nginx/conf.d/default.conf
       - ./app:/var/www/html
       - ./logs/nginx:/var/log/nginx
     ports:
       - "80:80"
-      - "443:443"
     links:
       - fpm
-  mysql:
-    image: mysql:5.7
-    restart: always
-    ports:
-      - "3306:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=my_db
+  dokuwiki:
+    build: .
     volumes:
-      - ./data/db:/var/lib/mysql
+      - ./app:/var/www/html
+      - ./bootstrap.sh:/usr/local/bin/bootstrap.sh
